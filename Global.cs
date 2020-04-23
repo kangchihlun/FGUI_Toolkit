@@ -40,5 +40,10 @@ namespace fgui_toolkit
         public static extern IntPtr FindWindow(string lpClassName, string lpWindowName);
 
         #endregion
+
+        public static bool ContainStr(string source, string toCheck, StringComparison comp = StringComparison.CurrentCultureIgnoreCase)
+        {
+            return source.IndexOf(toCheck, comp) >= 0;
+        }
     }
 }

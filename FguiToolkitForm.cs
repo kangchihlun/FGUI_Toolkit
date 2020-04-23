@@ -10,6 +10,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Security;
+using System.Xml.Linq;
 
 namespace fgui_toolkit
 {
@@ -23,7 +24,6 @@ namespace fgui_toolkit
             InitializeComponent();
             LoadConfig();
             Global.UI = new Global.InvokeUI(UpdateUI);
-            
         }
 
         protected void LoadConfig()
@@ -32,15 +32,6 @@ namespace fgui_toolkit
             int t = Global.GetPrivateProfileString("FGUI", "Location", "", sb, 255, Application.StartupPath + "\\Config.ini");
             FguiLocation = sb.ToString();
             txtFguiRoot.Text = FguiLocation;
-        }
-
-        private void btnPurgeProj_Click(object sender, EventArgs e)
-        {
-            bool bSearchViews = ckbSearchView.Checked;
-            bool bSearchAssets = ckbSearchAssets.Checked;
-            bool bDeleteAfterSearch = ckbDeleteAfterSearch.Checked;
-
-            Global.UI("1", "2", "Test");
         }
 
         private void btnFguiRoot_Click(object sender, EventArgs e)
@@ -57,7 +48,7 @@ namespace fgui_toolkit
                 {
                     string fproj_loc = System.IO.Path.GetDirectoryName(openFileDialog1.FileName);
                     txtFguiRoot.Text = fproj_loc;
-                    Global.WritePrivateProfileString("FGUI", "Location", fproj_loc , Application.StartupPath + "\\Config.ini");
+                    Global.WritePrivateProfileString("FGUI", "Location", fproj_loc, Application.StartupPath + "\\Config.ini");
                 }
                 catch (SecurityException ex)
                 {
@@ -65,22 +56,95 @@ namespace fgui_toolkit
                 }
             }
 
+
+        }
+
+        private void btnPurgeProj_Click(object sender, EventArgs e)
+        {
+            bool bSearchViews = ckbSearchView.Checked;
+            bool bSearchAssets = ckbSearchAssets.Checked;
+            bool bDeleteAfterSearch = ckbDeleteAfterSearch.Checked;
+
+            string assetspath = FguiLocation + "\\assets";
+            if (!Directory.Exists(assetspath)) return;
+
+            List<string> dirs = Directory.GetDirectories(assetspath, "*", SearchOption.TopDirectoryOnly).ToList();
+            if (dirs.Count < 1) return;
+            string[] fileEntries = Directory.GetFiles(dirs[0], "*.xml");
+
+            // All Resources id
+            Dictionary<string, FResource> resourceIDDict = new Dictionary<string, FResource>();
             
+            #region read package.xml
+            foreach (string fileName in fileEntries)
+            {
+                string curFile = Path.GetFileName(fileName).Split('.')[0];
+                if (!Global.ContainStr(curFile, "package")) continue;
+
+                XElement rootElement = XElement.Load(fileName);
+                foreach (XElement childElement in rootElement.Elements())
+                {
+                    if(childElement.Name.ToString() == "resources")
+                    {
+                        foreach (XElement res in childElement.Elements())
+                        {
+                            string id = res.Attribute("id").Value;
+                            string name = res.Attribute("name").Value;
+                            string path = res.Attribute("path").Value;
+                            if (res.Name.ToString() == "image")
+                            {
+                                FImage img = new FImage();
+                                img.id = id;
+                                img.name = name;
+                                img.path = path;
+                                if(null != res.Attribute("qualityOption"))
+                                    img.qualityOption = res.Attribute("qualityOption").Value;
+                                if (null != res.Attribute("quality"))
+                                    img.quality = res.Attribute("quality").Value;
+                                if (null != res.Attribute("atlas"))
+                                    img.atlas = res.Attribute("atlas").Value;
+                                resourceIDDict[id] = img;
+                            }
+                            else
+                            {
+                                FResource resource = new FResource();
+                                resource.id = id;
+                                resource.name = name;
+                                resource.path = path;
+                                resourceIDDict[id] = resource;
+                            }
+                        }
+                    }
+                }
+            }
+            #endregion
+
+            #region read other xml
+            foreach (string fileName in fileEntries)
+            {
+                string curFile = Path.GetFileName(fileName).Split('.')[0];
+                if (Global.ContainStr(curFile, "package")) continue;
+
+                XElement rootElement = XElement.Load(fileName);
+                foreach (XElement childElement in rootElement.Elements())
+                {
+                    if (childElement.Name.ToString() == "displayList")
+                    {
+                        foreach (XElement res in childElement.Elements())
+                        {
+                            string id = res.Attribute("id").Value;
+                            
+                        }
+                    }
+                }
+            }
+            #endregion
+            //Global.UI("", "", res.Attribute("name").ToString());
         }
 
         private void btnSwitchExpPath_Click(object sender, EventArgs e)
         {
 
-        }
-
-        private void FguiToolkitForm_Load(object sender, EventArgs e)
-        {
-            
-            #region DataGridView
-
-            
-            #endregion
-            
         }
 
         public void UpdateUI(string wParam, string lParam1, string lParam2)
@@ -104,7 +168,6 @@ namespace fgui_toolkit
             }
             UIEvent.Set();
         }
-
 
         private void DebugView(string id, string name,string path)
         {

@@ -193,7 +193,6 @@
             this.MinimumSize = new System.Drawing.Size(541, 633);
             this.Name = "FguiToolkitForm";
             this.Text = "FGui_Toolkit    Made by Kang";
-            this.Load += new System.EventHandler(this.FguiToolkitForm_Load);
             ((System.ComponentModel.ISupportInitialize)(this.datagridView1)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
