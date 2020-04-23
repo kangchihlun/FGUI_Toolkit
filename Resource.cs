@@ -11,6 +11,8 @@ namespace fgui_toolkit
         public string id;
         public string name;
         public string path;
+        
+        bool bUsed = false;
     }
 
     public class FImage : FResource

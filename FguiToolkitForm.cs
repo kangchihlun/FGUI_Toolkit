@@ -61,11 +61,18 @@ namespace fgui_toolkit
 
         private void btnPurgeProj_Click(object sender, EventArgs e)
         {
+            
+            string assetspath = FguiLocation + "\\assets";
+            doPurgeProj(assetspath);
+
+        }
+
+        private void doPurgeProj(string assetspath)
+        {
             bool bSearchViews = ckbSearchView.Checked;
             bool bSearchAssets = ckbSearchAssets.Checked;
             bool bDeleteAfterSearch = ckbDeleteAfterSearch.Checked;
 
-            string assetspath = FguiLocation + "\\assets";
             if (!Directory.Exists(assetspath)) return;
 
             List<string> dirs = Directory.GetDirectories(assetspath, "*", SearchOption.TopDirectoryOnly).ToList();
@@ -74,7 +81,7 @@ namespace fgui_toolkit
 
             // All Resources id
             Dictionary<string, FResource> resourceIDDict = new Dictionary<string, FResource>();
-            
+
             #region read package.xml
             foreach (string fileName in fileEntries)
             {
@@ -84,7 +91,7 @@ namespace fgui_toolkit
                 XElement rootElement = XElement.Load(fileName);
                 foreach (XElement childElement in rootElement.Elements())
                 {
-                    if(childElement.Name.ToString() == "resources")
+                    if (childElement.Name.ToString() == "resources")
                     {
                         foreach (XElement res in childElement.Elements())
                         {
@@ -97,7 +104,7 @@ namespace fgui_toolkit
                                 img.id = id;
                                 img.name = name;
                                 img.path = path;
-                                if(null != res.Attribute("qualityOption"))
+                                if (null != res.Attribute("qualityOption"))
                                     img.qualityOption = res.Attribute("qualityOption").Value;
                                 if (null != res.Attribute("quality"))
                                     img.quality = res.Attribute("quality").Value;
@@ -133,7 +140,8 @@ namespace fgui_toolkit
                         foreach (XElement res in childElement.Elements())
                         {
                             string id = res.Attribute("id").Value;
-                            
+                            string name = res.Attribute("name").Value;
+                            Console.WriteLine(id + " -- " + name);
                         }
                     }
                 }

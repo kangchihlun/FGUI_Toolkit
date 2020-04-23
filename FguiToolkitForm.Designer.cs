@@ -36,18 +36,18 @@
             this.comboBox1 = new System.Windows.Forms.ComboBox();
             this.label1 = new System.Windows.Forms.Label();
             this.datagridView1 = new System.Windows.Forms.DataGridView();
-            this.btnFguiRoot = new System.Windows.Forms.Button();
-            this.txtFguiRoot = new System.Windows.Forms.TextBox();
-            this.button1 = new System.Windows.Forms.Button();
             this.dataGridViewTextBoxColumn1 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.dataGridViewTextBoxColumn2 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.colPath = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.btnFguiRoot = new System.Windows.Forms.Button();
+            this.txtFguiRoot = new System.Windows.Forms.TextBox();
+            this.button1 = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.datagridView1)).BeginInit();
             this.SuspendLayout();
             // 
             // btnPurgeProject
             // 
-            this.btnPurgeProject.Location = new System.Drawing.Point(150, 65);
+            this.btnPurgeProject.Location = new System.Drawing.Point(156, 65);
             this.btnPurgeProject.Name = "btnPurgeProject";
             this.btnPurgeProject.Size = new System.Drawing.Size(75, 43);
             this.btnPurgeProject.TabIndex = 0;
@@ -74,9 +74,9 @@
             this.ckbSearchAssets.CheckState = System.Windows.Forms.CheckState.Checked;
             this.ckbSearchAssets.Location = new System.Drawing.Point(11, 82);
             this.ckbSearchAssets.Name = "ckbSearchAssets";
-            this.ckbSearchAssets.Size = new System.Drawing.Size(96, 16);
+            this.ckbSearchAssets.Size = new System.Drawing.Size(140, 16);
             this.ckbSearchAssets.TabIndex = 3;
-            this.ckbSearchAssets.Text = "搜尋無用圖檔";
+            this.ckbSearchAssets.Text = "搜尋無用資源(含音效)";
             this.ckbSearchAssets.UseVisualStyleBackColor = true;
             // 
             // ckbDeleteAfterSearch
@@ -131,6 +131,22 @@
             this.datagridView1.TabIndex = 26;
             this.datagridView1.CellMouseClick += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.datagridview1_CellMouseClick);
             // 
+            // dataGridViewTextBoxColumn1
+            // 
+            this.dataGridViewTextBoxColumn1.HeaderText = "ID";
+            this.dataGridViewTextBoxColumn1.Name = "dataGridViewTextBoxColumn1";
+            // 
+            // dataGridViewTextBoxColumn2
+            // 
+            this.dataGridViewTextBoxColumn2.HeaderText = "名稱";
+            this.dataGridViewTextBoxColumn2.Name = "dataGridViewTextBoxColumn2";
+            // 
+            // colPath
+            // 
+            this.colPath.HeaderText = "路徑";
+            this.colPath.Name = "colPath";
+            this.colPath.Width = 500;
+            // 
             // btnFguiRoot
             // 
             this.btnFguiRoot.Location = new System.Drawing.Point(11, 9);
@@ -156,22 +172,6 @@
             this.button1.TabIndex = 11;
             this.button1.Text = "批次導出";
             this.button1.UseVisualStyleBackColor = true;
-            // 
-            // dataGridViewTextBoxColumn1
-            // 
-            this.dataGridViewTextBoxColumn1.HeaderText = "ID";
-            this.dataGridViewTextBoxColumn1.Name = "dataGridViewTextBoxColumn1";
-            // 
-            // dataGridViewTextBoxColumn2
-            // 
-            this.dataGridViewTextBoxColumn2.HeaderText = "名稱";
-            this.dataGridViewTextBoxColumn2.Name = "dataGridViewTextBoxColumn2";
-            // 
-            // colPath
-            // 
-            this.colPath.HeaderText = "路徑";
-            this.colPath.Name = "colPath";
-            this.colPath.Width = 500;
             // 
             // FguiToolkitForm
             // 
