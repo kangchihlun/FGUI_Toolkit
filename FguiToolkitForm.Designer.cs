@@ -35,9 +35,14 @@
             this.btnSwitchExpPath = new System.Windows.Forms.Button();
             this.comboBox1 = new System.Windows.Forms.ComboBox();
             this.label1 = new System.Windows.Forms.Label();
-            this.listView1 = new System.Windows.Forms.ListView();
+            this.datagridView1 = new System.Windows.Forms.DataGridView();
             this.btnFguiRoot = new System.Windows.Forms.Button();
-            this.textBox1 = new System.Windows.Forms.TextBox();
+            this.txtFguiRoot = new System.Windows.Forms.TextBox();
+            this.button1 = new System.Windows.Forms.Button();
+            this.dataGridViewTextBoxColumn1 = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.dataGridViewTextBoxColumn2 = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.colPath = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            ((System.ComponentModel.ISupportInitialize)(this.datagridView1)).BeginInit();
             this.SuspendLayout();
             // 
             // btnPurgeProject
@@ -86,17 +91,18 @@
             // 
             // btnSwitchExpPath
             // 
-            this.btnSwitchExpPath.Location = new System.Drawing.Point(439, 65);
+            this.btnSwitchExpPath.Location = new System.Drawing.Point(425, 56);
             this.btnSwitchExpPath.Name = "btnSwitchExpPath";
-            this.btnSwitchExpPath.Size = new System.Drawing.Size(75, 43);
+            this.btnSwitchExpPath.Size = new System.Drawing.Size(88, 29);
             this.btnSwitchExpPath.TabIndex = 5;
             this.btnSwitchExpPath.Text = "切換";
             this.btnSwitchExpPath.UseVisualStyleBackColor = true;
+            this.btnSwitchExpPath.Click += new System.EventHandler(this.btnSwitchExpPath_Click);
             // 
             // comboBox1
             // 
             this.comboBox1.FormattingEnabled = true;
-            this.comboBox1.Location = new System.Drawing.Point(265, 83);
+            this.comboBox1.Location = new System.Drawing.Point(251, 78);
             this.comboBox1.Name = "comboBox1";
             this.comboBox1.Size = new System.Drawing.Size(168, 20);
             this.comboBox1.TabIndex = 6;
@@ -104,20 +110,26 @@
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(266, 65);
+            this.label1.Location = new System.Drawing.Point(252, 60);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(101, 12);
             this.label1.TabIndex = 7;
             this.label1.Text = "切換預設導出路徑";
             // 
-            // listView1
+            // datagridView1
             // 
-            this.listView1.HideSelection = false;
-            this.listView1.Location = new System.Drawing.Point(11, 141);
-            this.listView1.Name = "listView1";
-            this.listView1.Size = new System.Drawing.Size(503, 166);
-            this.listView1.TabIndex = 8;
-            this.listView1.UseCompatibleStateImageBehavior = false;
+            this.datagridView1.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this.dataGridViewTextBoxColumn1,
+            this.dataGridViewTextBoxColumn2,
+            this.colPath});
+            this.datagridView1.Font = new System.Drawing.Font("微軟正黑體", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.datagridView1.Location = new System.Drawing.Point(11, 141);
+            this.datagridView1.Name = "datagridView1";
+            this.datagridView1.RowHeadersVisible = false;
+            this.datagridView1.RowTemplate.Height = 24;
+            this.datagridView1.Size = new System.Drawing.Size(503, 441);
+            this.datagridView1.TabIndex = 26;
+            this.datagridView1.CellMouseClick += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.datagridview1_CellMouseClick);
             // 
             // btnFguiRoot
             // 
@@ -127,22 +139,49 @@
             this.btnFguiRoot.TabIndex = 9;
             this.btnFguiRoot.Text = "fgui專案";
             this.btnFguiRoot.UseVisualStyleBackColor = true;
+            this.btnFguiRoot.Click += new System.EventHandler(this.btnFguiRoot_Click);
             // 
-            // textBox1
+            // txtFguiRoot
             // 
-            this.textBox1.Location = new System.Drawing.Point(85, 12);
-            this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(348, 22);
-            this.textBox1.TabIndex = 10;
+            this.txtFguiRoot.Location = new System.Drawing.Point(85, 12);
+            this.txtFguiRoot.Name = "txtFguiRoot";
+            this.txtFguiRoot.Size = new System.Drawing.Size(348, 22);
+            this.txtFguiRoot.TabIndex = 10;
             // 
-            // Form1
+            // button1
+            // 
+            this.button1.Location = new System.Drawing.Point(425, 91);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(88, 29);
+            this.button1.TabIndex = 11;
+            this.button1.Text = "批次導出";
+            this.button1.UseVisualStyleBackColor = true;
+            // 
+            // dataGridViewTextBoxColumn1
+            // 
+            this.dataGridViewTextBoxColumn1.HeaderText = "ID";
+            this.dataGridViewTextBoxColumn1.Name = "dataGridViewTextBoxColumn1";
+            // 
+            // dataGridViewTextBoxColumn2
+            // 
+            this.dataGridViewTextBoxColumn2.HeaderText = "名稱";
+            this.dataGridViewTextBoxColumn2.Name = "dataGridViewTextBoxColumn2";
+            // 
+            // colPath
+            // 
+            this.colPath.HeaderText = "路徑";
+            this.colPath.Name = "colPath";
+            this.colPath.Width = 500;
+            // 
+            // FguiToolkitForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(526, 319);
-            this.Controls.Add(this.textBox1);
+            this.ClientSize = new System.Drawing.Size(525, 594);
+            this.Controls.Add(this.button1);
+            this.Controls.Add(this.txtFguiRoot);
             this.Controls.Add(this.btnFguiRoot);
-            this.Controls.Add(this.listView1);
+            this.Controls.Add(this.datagridView1);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.comboBox1);
             this.Controls.Add(this.btnSwitchExpPath);
@@ -150,8 +189,12 @@
             this.Controls.Add(this.ckbSearchAssets);
             this.Controls.Add(this.ckbSearchView);
             this.Controls.Add(this.btnPurgeProject);
-            this.Name = "Form1";
+            this.MaximumSize = new System.Drawing.Size(541, 633);
+            this.MinimumSize = new System.Drawing.Size(541, 633);
+            this.Name = "FguiToolkitForm";
             this.Text = "FGui_Toolkit    Made by Kang";
+            this.Load += new System.EventHandler(this.FguiToolkitForm_Load);
+            ((System.ComponentModel.ISupportInitialize)(this.datagridView1)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -166,9 +209,13 @@
         private System.Windows.Forms.Button btnSwitchExpPath;
         private System.Windows.Forms.ComboBox comboBox1;
         private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.ListView listView1;
+        private System.Windows.Forms.DataGridView datagridView1;
         private System.Windows.Forms.Button btnFguiRoot;
-        private System.Windows.Forms.TextBox textBox1;
+        private System.Windows.Forms.TextBox txtFguiRoot;
+        private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn1;
+        private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn2;
+        private System.Windows.Forms.DataGridViewTextBoxColumn colPath;
     }
 }
 
