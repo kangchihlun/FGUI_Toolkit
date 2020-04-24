@@ -19,6 +19,10 @@ namespace fgui_toolkit
         private string FguiLocation = "";
         private AutoResetEvent UIEvent = new AutoResetEvent(false);
 
+        // All Resources id
+        Dictionary<string, FResource> resourceIDDict = new Dictionary<string, FResource>();
+
+
         public FguiToolkitForm()
         {
             InitializeComponent();
@@ -61,17 +65,19 @@ namespace fgui_toolkit
 
         private void btnPurgeProj_Click(object sender, EventArgs e)
         {
-            
-            string assetspath = FguiLocation + "\\assets";
-            doPurgeProj(assetspath);
-
+            datagridView1.Rows.Clear();
+            datagridView1.Refresh();
+            List<string> dirs = Directory.GetDirectories(FguiLocation, "*", SearchOption.TopDirectoryOnly).ToList();
+            foreach (string dir in dirs)
+            {
+                string lastfolderName = Path.GetFileName(dir);
+                if (lastfolderName != "assets") continue;
+                doPurgeProj(dir);
+            }
         }
 
         private void doPurgeProj(string assetspath)
         {
-            bool bSearchViews = ckbSearchView.Checked;
-            bool bSearchAssets = ckbSearchAssets.Checked;
-            bool bDeleteAfterSearch = ckbDeleteAfterSearch.Checked;
 
             if (!Directory.Exists(assetspath)) return;
 
@@ -80,14 +86,15 @@ namespace fgui_toolkit
             string[] fileEntries = Directory.GetFiles(dirs[0], "*.xml");
 
             // All Resources id
-            Dictionary<string, FResource> resourceIDDict = new Dictionary<string, FResource>();
+            resourceIDDict.Clear();
 
             #region read package.xml
+            string packageFileLocation = "";
             foreach (string fileName in fileEntries)
             {
                 string curFile = Path.GetFileName(fileName).Split('.')[0];
                 if (!Global.ContainStr(curFile, "package")) continue;
-
+                packageFileLocation = fileName;
                 XElement rootElement = XElement.Load(fileName);
                 foreach (XElement childElement in rootElement.Elements())
                 {
@@ -119,6 +126,10 @@ namespace fgui_toolkit
                                 resource.name = name;
                                 resource.path = path;
                                 resourceIDDict[id] = resource;
+                                if ("/" == path)
+                                {
+                                    resourceIDDict[id].bUsed = true;
+                                }
                             }
                         }
                     }
@@ -126,28 +137,70 @@ namespace fgui_toolkit
             }
             #endregion
 
-            #region read other xml
+            #region read main scene xml
+            // Scan Main & Room
             foreach (string fileName in fileEntries)
             {
                 string curFile = Path.GetFileName(fileName).Split('.')[0];
                 if (Global.ContainStr(curFile, "package")) continue;
+                //Console.WriteLine(curFile);
+                checkResInUseRecursive(fileName);
 
-                XElement rootElement = XElement.Load(fileName);
-                foreach (XElement childElement in rootElement.Elements())
+
+            }
+            #endregion
+
+            // final result
+            foreach (string id in resourceIDDict.Keys)
+            {
+                if (!resourceIDDict[id].bUsed)
                 {
-                    if (childElement.Name.ToString() == "displayList")
+                    string fullpath = Path.GetDirectoryName(packageFileLocation)+resourceIDDict[id].path.Replace('/', '\\') + resourceIDDict[id].name;
+                    Global.UI(resourceIDDict[id].id,resourceIDDict[id].name,fullpath) ;
+                }
+            }
+            //Global.UI("", "", res.Attribute("name").ToString());
+        }
+
+        private void checkResInUseRecursive(string fileName)
+        {
+            if (!File.Exists(fileName)) return;
+            XElement rootElement = XElement.Load(fileName);
+            foreach (XElement childElement in rootElement.Elements())
+            {
+                if (childElement.Name.ToString() == "displayList")
+                {
+                    foreach (XElement res in childElement.Elements())
                     {
-                        foreach (XElement res in childElement.Elements())
+                        if (null != res.Attribute("fileName"))
                         {
-                            string id = res.Attribute("id").Value;
-                            string name = res.Attribute("name").Value;
-                            Console.WriteLine(id + " -- " + name);
+                            string extname = Path.GetExtension(res.Attribute("fileName").Value);
+                            if(extname == ".xml")
+                            {
+                                if (null != res.Attribute("src"))
+                                {
+                                    string src = res.Attribute("src").Value;
+                                    if (resourceIDDict.ContainsKey(src))
+                                    {
+                                        resourceIDDict[src].bUsed = true;
+                                    }
+                                }
+                                string subpath = Path.GetDirectoryName(fileName)+"\\"+res.Attribute("fileName").Value.Replace('/','\\');
+                                checkResInUseRecursive(subpath);
+                            }
+                            else if (null != res.Attribute("src"))
+                            {
+                                string src = res.Attribute("src").Value;
+                                if (resourceIDDict.ContainsKey(src))
+                                {
+                                    resourceIDDict[src].bUsed = true;
+                                }
+                            }
                         }
+                        
                     }
                 }
             }
-            #endregion
-            //Global.UI("", "", res.Attribute("name").ToString());
         }
 
         private void btnSwitchExpPath_Click(object sender, EventArgs e)
@@ -183,7 +236,7 @@ namespace fgui_toolkit
             NListView.SubItems.Add(new ListViewItem.ListViewSubItem().Text = id);
             NListView.SubItems.Add(new ListViewItem.ListViewSubItem().Text = name);
             NListView.SubItems.Add(new ListViewItem.ListViewSubItem().Text = path);
-            datagridView1.Rows.Add(new string[] { id,name,path });
+            datagridView1.Rows.Add(new string[] { name,path });
 
         }
 
