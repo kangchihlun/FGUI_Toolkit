@@ -85,14 +85,11 @@ namespace fgui_toolkit
 
         private void doPurgeProj(string assetspath)
         {
-
             if (!Directory.Exists(assetspath)) return;
 
             List<string> dirs = Directory.GetDirectories(assetspath, "*", SearchOption.TopDirectoryOnly).ToList();
             if (dirs.Count < 1) return;
             string[] fileEntries = Directory.GetFiles(dirs[0], "*.xml");
-
-
 
             #region read package.xml
             string packageFileLocation = "";
@@ -156,6 +153,59 @@ namespace fgui_toolkit
             }
             #endregion
 
+            #region read package_branch 分支
+
+            Dictionary<string, FResource> resdict_branch_unused = new Dictionary<string, FResource>();
+            DirectoryInfo di = new DirectoryInfo(assetspath);
+            Console.WriteLine(di.Parent.FullName);
+            List<string> assetsdirs = Directory.GetDirectories(di.Parent.FullName, "*", SearchOption.TopDirectoryOnly).ToList();
+            foreach (string dir in assetsdirs)
+            {
+                if (Global.ContainStr(dir,"assets_"))
+                {
+                    List<string> assSubds = Directory.GetDirectories(dir, "*", SearchOption.TopDirectoryOnly).ToList();
+                    if (assSubds.Count < 1) return;
+                    string[] ffs = Directory.GetFiles(assSubds[0], "*.xml");
+                    foreach (string psn in ffs)
+                    {
+                        string curFile = Path.GetFileName(psn).Split('.')[0];
+                        if (!Global.ContainStr(curFile, "package_branch")) continue;
+                        XElement rootElement = XElement.Load(psn);
+                        foreach (XElement childElement in rootElement.Elements())
+                        {
+                            if (childElement.Name.ToString() == "resources")
+                            {
+                                foreach (XElement res in childElement.Elements())
+                                {
+                                    string name = res.Attribute("name").Value;
+                                    string path = res.Attribute("path").Value;
+                                    foreach (string id in resourceIDDict.Keys)
+                                    {
+                                        if( resourceIDDict[id].path == path &&
+                                            resourceIDDict[id].name == name )
+                                        {
+                                            if (!resourceIDDict[id].bUsed)
+                                            {
+                                                string rresid = res.Attribute("id").Value;
+                                                FResource resource = new FResource();
+                                                resource.id = id;
+                                                resource.name = name;
+                                                resource.path = Path.GetDirectoryName(psn)+path;
+                                                resdict_branch_unused[rresid] = resource;
+
+                                                Console.WriteLine(resourceIDDict[id].name);
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            #endregion
+
             // final result
             foreach (string id in resourceIDDict.Keys)
             {
@@ -165,7 +215,15 @@ namespace fgui_toolkit
                     Global.UI(resourceIDDict[id].id,resourceIDDict[id].name,fullpath) ;
                 }
             }
-            //Global.UI("", "", res.Attribute("name").ToString());
+            // 分支
+            foreach (string id in resdict_branch_unused.Keys)
+            {
+                if (!resdict_branch_unused[id].bUsed)
+                {
+                    string fullpath = resdict_branch_unused[id].path.Replace('/', '\\') + resdict_branch_unused[id].name;
+                    Global.UI(resdict_branch_unused[id].id, resdict_branch_unused[id].name, fullpath);
+                }
+            }
         }
 
         private void checkResInUseRecursive(string fileName)
