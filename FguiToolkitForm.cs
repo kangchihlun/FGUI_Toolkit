@@ -40,6 +40,10 @@ namespace fgui_toolkit
 
         private void btnFguiRoot_Click(object sender, EventArgs e)
         {
+            datagridView1.Rows.Clear();
+            datagridView1.Refresh();
+            resourceIDDict.Clear();
+
             OpenFileDialog openFileDialog1 = new OpenFileDialog()
             {
                 FileName = "Select a fairy file",
@@ -52,6 +56,7 @@ namespace fgui_toolkit
                 {
                     string fproj_loc = System.IO.Path.GetDirectoryName(openFileDialog1.FileName);
                     txtFguiRoot.Text = fproj_loc;
+                    FguiLocation = fproj_loc;
                     Global.WritePrivateProfileString("FGUI", "Location", fproj_loc, Application.StartupPath + "\\Config.ini");
                 }
                 catch (SecurityException ex)
@@ -67,6 +72,8 @@ namespace fgui_toolkit
         {
             datagridView1.Rows.Clear();
             datagridView1.Refresh();
+            resourceIDDict.Clear();
+
             List<string> dirs = Directory.GetDirectories(FguiLocation, "*", SearchOption.TopDirectoryOnly).ToList();
             foreach (string dir in dirs)
             {
@@ -85,8 +92,7 @@ namespace fgui_toolkit
             if (dirs.Count < 1) return;
             string[] fileEntries = Directory.GetFiles(dirs[0], "*.xml");
 
-            // All Resources id
-            resourceIDDict.Clear();
+
 
             #region read package.xml
             string packageFileLocation = "";
@@ -240,15 +246,46 @@ namespace fgui_toolkit
 
         }
 
-        private void datagridview1_CellMouseClick(object sender, System.Windows.Forms.DataGridViewCellMouseEventArgs e)
+        private void datagridview1_CellMouseDbClick(object sender, System.Windows.Forms.DataGridViewCellMouseEventArgs e)
         {
             DataGridView view = (DataGridView)sender;
             if (e.Button == MouseButtons.Left)
             {
                 if (e.RowIndex < 0) return;
                 view.Rows[e.RowIndex].Selected = true;
+                if (null != view.Rows[e.RowIndex].Cells[0].Value)
+                {
+                    string path = view.Rows[e.RowIndex].Cells[1].Value.ToString();
+                    System.Diagnostics.Process.Start("explorer.exe", string.Format("/select,\"{0}\"", view.Rows[e.RowIndex].Cells[1].Value.ToString()));
+                }
             }
         }
 
+        private string curRClickPath = "";
+        private void datagridview1_CellMouseClick(object sender, System.Windows.Forms.DataGridViewCellMouseEventArgs e)
+        {
+            DataGridView view = (DataGridView)sender;
+            if (e.Button == MouseButtons.Right)
+            {
+                if (e.RowIndex < 0) return;
+                view.Rows[e.RowIndex].Selected = true;
+                if (null != view.Rows[e.RowIndex].Cells[0].Value)
+                {
+                    string path = view.Rows[e.RowIndex].Cells[1].Value.ToString();
+                    System.Drawing.Rectangle r = view.GetCellDisplayRectangle(e.ColumnIndex, e.RowIndex, true);
+                    curRClickPath = path;
+                    MenuItem DelMenu = new MenuItem("複製");
+                    DelMenu.Click += new System.EventHandler(this.mi_romenuclick);
+                    List<MenuItem> menuItems = new List<MenuItem>() { DelMenu };
+                    ContextMenu buttonMenu = new ContextMenu(menuItems.ToArray());
+                    buttonMenu.Show((Control)sender, (new System.Drawing.Point(r.Left + e.X, r.Top + e.Y)), LeftRightAlignment.Left);
+                }
+            }
+        }
+        private void mi_romenuclick(object sender, EventArgs e)
+        {
+            Clipboard.Clear();
+            Clipboard.SetText(curRClickPath);
+        }
     }
 }
