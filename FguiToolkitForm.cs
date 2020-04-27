@@ -120,6 +120,8 @@ namespace fgui_toolkit
                                     img.quality = res.Attribute("quality").Value;
                                 if (null != res.Attribute("atlas"))
                                     img.atlas = res.Attribute("atlas").Value;
+                                if (null != res.Attribute("exported"))
+                                    img.bUsed = res.Attribute("exported").Value=="true"?true:false;
                                 resourceIDDict[id] = img;
                             }
                             else
@@ -128,11 +130,12 @@ namespace fgui_toolkit
                                 resource.id = id;
                                 resource.name = name;
                                 resource.path = path;
-                                resourceIDDict[id] = resource;
                                 if ("/" == path)
-                                {
-                                    resourceIDDict[id].bUsed = true;
-                                }
+                                    resource.bUsed = true;
+                                
+                                if (null != res.Attribute("exported"))
+                                    resource.bUsed = res.Attribute("exported").Value == "true" ? true : false;
+                                resourceIDDict[id] = resource;
                             }
                         }
                     }
@@ -147,7 +150,7 @@ namespace fgui_toolkit
                 string curFile = Path.GetFileName(fileName).Split('.')[0];
                 if (Global.ContainStr(curFile, "package")) continue;
                 //Console.WriteLine(curFile);
-                checkResInUseRecursive(fileName);
+                checkResInUseRecursive(fileName,Path.GetDirectoryName(fileName));
 
 
             }
@@ -193,7 +196,7 @@ namespace fgui_toolkit
                                                 resource.path = Path.GetDirectoryName(psn)+path;
                                                 resdict_branch_unused[rresid] = resource;
 
-                                                Console.WriteLine(resourceIDDict[id].name);
+                                                //Console.WriteLine(resourceIDDict[id].name);
                                             }
                                         }
                                     }
@@ -226,7 +229,7 @@ namespace fgui_toolkit
             }
         }
 
-        private void checkResInUseRecursive(string fileName)
+        private void checkResInUseRecursive(string fileName,string root)
         {
             if (!File.Exists(fileName)) return;
             XElement rootElement = XElement.Load(fileName);
@@ -249,8 +252,8 @@ namespace fgui_toolkit
                                         resourceIDDict[src].bUsed = true;
                                     }
                                 }
-                                string subpath = Path.GetDirectoryName(fileName)+"\\"+res.Attribute("fileName").Value.Replace('/','\\');
-                                checkResInUseRecursive(subpath);
+                                string subpath = root+"\\"+res.Attribute("fileName").Value.Replace('/','\\');
+                                checkResInUseRecursive(subpath,root);
                             }
                             else if (null != res.Attribute("src"))
                             {
