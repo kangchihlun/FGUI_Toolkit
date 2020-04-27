@@ -91,6 +91,14 @@ namespace fgui_toolkit
             if (dirs.Count < 1) return;
             string[] fileEntries = Directory.GetFiles(dirs[0], "*.xml");
 
+            // 特別判斷 font res
+            Dictionary<string, FResource> fontDict = new Dictionary<string, FResource>();
+
+            // 單獨輸出的 comp 收集
+            Dictionary<string, FResource> exportedComp = new Dictionary<string, FResource>();
+
+            // root 
+            string lroot = dirs[0];
             #region read package.xml
             string packageFileLocation = "";
             foreach (string fileName in fileEntries)
@@ -132,10 +140,17 @@ namespace fgui_toolkit
                                 resource.path = path;
                                 if ("/" == path)
                                     resource.bUsed = true;
-                                
+                                if(res.Name.ToString() == "folder") // 這個不知道要幹嘛用的
+                                    resource.bUsed = true;
+
                                 if (null != res.Attribute("exported"))
+                                {
                                     resource.bUsed = res.Attribute("exported").Value == "true" ? true : false;
+                                    exportedComp[lroot + path + name] = resource;
+                                }
                                 resourceIDDict[id] = resource;
+                                if (res.Name.ToString() == "font") // 特別判斷 font，拉到外面再循環檢查一次
+                                    fontDict[lroot + path + name] = resource;
                             }
                         }
                     }
@@ -144,16 +159,18 @@ namespace fgui_toolkit
             #endregion
 
             #region read main scene xml
-            // Scan Main & Room
-            foreach (string fileName in fileEntries)
+            
+            // Scan Fonts
+            foreach (string fonts in fontDict.Keys)
             {
-                string curFile = Path.GetFileName(fileName).Split('.')[0];
-                if (Global.ContainStr(curFile, "package")) continue;
-                //Console.WriteLine(curFile);
-                checkResInUseRecursive(fileName,Path.GetDirectoryName(fileName));
-
-
+                checkFont(fonts);
             }
+            // Scan Exported Components
+            foreach (string xc in exportedComp.Keys)
+            {
+                checkResInUseRecursive(xc, lroot);
+            }
+
             #endregion
 
             #region read package_branch 分支
@@ -232,6 +249,8 @@ namespace fgui_toolkit
         private void checkResInUseRecursive(string fileName,string root)
         {
             if (!File.Exists(fileName)) return;
+            string curext = Path.GetExtension(fileName);
+            if (curext != ".xml") return;
             XElement rootElement = XElement.Load(fileName);
             foreach (XElement childElement in rootElement.Elements())
             {
@@ -265,6 +284,27 @@ namespace fgui_toolkit
                             }
                         }
                         
+                    }
+                }
+            }
+        }
+
+        private void checkFont(string fileName)
+        {
+            if (!File.Exists(fileName)) return;
+            string curext = Path.GetExtension(fileName);
+            if (curext != ".fnt") return;
+            using (var reader = new StreamReader(fileName))
+            {
+                string line;
+                while ((line = reader.ReadLine()) != null)
+                {
+                    List<string> linespl = line.Split(' ').ToList();
+                    if(Global.ContainStr(linespl[0], "char"))
+                    {
+                        string img = linespl[2].Split('=')[1];
+                        if(resourceIDDict.ContainsKey(img))
+                            resourceIDDict[img].bUsed = true;
                     }
                 }
             }
