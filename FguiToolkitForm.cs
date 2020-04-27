@@ -19,6 +19,8 @@ namespace fgui_toolkit
         private string FguiLocation = "";
         private AutoResetEvent UIEvent = new AutoResetEvent(false);
 
+        private string packageDesc = "";
+
         // All Resources id
         Dictionary<string, FResource> resourceIDDict = new Dictionary<string, FResource>();
 
@@ -107,6 +109,10 @@ namespace fgui_toolkit
                 if (!Global.ContainStr(curFile, "package")) continue;
                 packageFileLocation = fileName;
                 XElement rootElement = XElement.Load(fileName);
+                
+                if (rootElement.Name.ToString() == "packageDescription")
+                    packageDesc = rootElement.Attribute("id").Value;
+                
                 foreach (XElement childElement in rootElement.Elements())
                 {
                     if (childElement.Name.ToString() == "resources")
@@ -154,6 +160,7 @@ namespace fgui_toolkit
                             }
                         }
                     }
+                    
                 }
             }
             #endregion
@@ -260,8 +267,17 @@ namespace fgui_toolkit
                     {
                         if (null != res.Attribute("fileName"))
                         {
+                            #if DEBUG
+                            if(Path.GetFileName(fileName)== "dialogRoad.xml")
+                            {
+                                Console.WriteLine("2314");
+                            }
+                            Console.WriteLine(Path.GetFileName(fileName));
+                            #endif
+
+                            // 發現一個致命的錯誤，直接查找位於xml內 filename 這個屬性有可能是錯的，一定要從src再回去 package 裡面找
                             string extname = Path.GetExtension(res.Attribute("fileName").Value);
-                            if(extname == ".xml")
+                            if (extname == ".xml")
                             {
                                 if (null != res.Attribute("src"))
                                 {
@@ -270,9 +286,11 @@ namespace fgui_toolkit
                                     {
                                         resourceIDDict[src].bUsed = true;
                                     }
+
+                                    string path_ = resourceIDDict[src].path;
+                                    string name_ = resourceIDDict[src].name;
+                                    checkResInUseRecursive(root + path_ + name_, root);
                                 }
-                                string subpath = root+"\\"+res.Attribute("fileName").Value.Replace('/','\\');
-                                checkResInUseRecursive(subpath,root);
                             }
                             else if (null != res.Attribute("src"))
                             {
@@ -283,7 +301,60 @@ namespace fgui_toolkit
                                 }
                             }
                         }
-                        
+                        else if ("list" == res.Name)
+                        {
+                            // list content should be recursive
+                            string tgtsid = "";
+                            if (null != res.Attribute("defaultItem"))
+                            {
+                                string strdfitm = res.Attribute("defaultItem").Value.ToString();
+                                string dfitm = strdfitm.Substring(5);
+
+                                tgtsid = dfitm.Substring(packageDesc.Length);
+                                if (resourceIDDict.ContainsKey(tgtsid))
+                                {
+                                    resourceIDDict[tgtsid].bUsed = true;
+                                    string path_ = resourceIDDict[tgtsid].path;
+                                    string name_ = resourceIDDict[tgtsid].name;
+                                    checkResInUseRecursive(root + path_ + name_, root);
+                                }
+                            }
+                           
+                            foreach (XElement ls in res.Elements())
+                            {
+                                if (ls.Name.ToString() == "item")
+                                {
+                                    if (null != ls.Attribute("url"))
+                                    {
+                                        string strdfitm = ls.Attribute("url").Value.ToString();
+                                        string dfitm = strdfitm.Substring(5);
+
+                                        tgtsid = dfitm.Substring(packageDesc.Length);
+                                        if (resourceIDDict.ContainsKey(tgtsid))
+                                        {
+                                            resourceIDDict[tgtsid].bUsed = true;
+                                            string path_ = resourceIDDict[tgtsid].path;
+                                            string name_ = resourceIDDict[tgtsid].name;
+                                            checkResInUseRecursive(root + path_ + name_, root);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                    }
+                }
+                else if ("Button" == childElement.Name)
+                {
+                    if (null != childElement.Attribute("sound"))
+                    {
+                        string strdfitm = childElement.Attribute("sound").Value.ToString();
+                        string dfitm = strdfitm.Substring(5);
+                        string tgtsid = dfitm.Substring(packageDesc.Length);
+                        if (resourceIDDict.ContainsKey(tgtsid))
+                        {
+                            resourceIDDict[tgtsid].bUsed = true;
+                        }
                     }
                 }
             }
