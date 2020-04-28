@@ -11,6 +11,8 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Security;
 using System.Xml.Linq;
+using Newtonsoft.Json;
+
 
 namespace fgui_toolkit
 {
@@ -24,6 +26,8 @@ namespace fgui_toolkit
         // All Resources id
         Dictionary<string, FResource> resourceIDDict = new Dictionary<string, FResource>();
 
+        // All export path
+        public Dictionary<string, ExportInfo> exportInfoDict = new Dictionary<string, ExportInfo>();
 
         public FguiToolkitForm()
         {
@@ -38,7 +42,18 @@ namespace fgui_toolkit
             int t = Global.GetPrivateProfileString("FGUI", "Location", "", sb, 255, Application.StartupPath + "\\Config.ini");
             FguiLocation = sb.ToString();
             txtFguiRoot.Text = FguiLocation;
+
+            if (FguiLocation.Length>0)
+            {
+                string expinfopath = FguiLocation + "\\exportinfo.json";
+                if (File.Exists(expinfopath))
+                {
+                    exportInfoDict = JsonConvert.DeserializeObject<Dictionary<string, ExportInfo>>(File.ReadAllText(expinfopath));
+                    updateCombItem();
+                }
+            }
         }
+
 
         private void btnFguiRoot_Click(object sender, EventArgs e)
         {
@@ -462,5 +477,42 @@ namespace fgui_toolkit
             Clipboard.Clear();
             Clipboard.SetText(curRClickPath);
         }
+
+        private void btnAddExpPath_Click(object sender, EventArgs e)
+        {
+            newPackageForm pf = new newPackageForm(this.exportInfoDict,this);
+            pf.TopMost = true;
+            pf.StartPosition = FormStartPosition.Manual;
+            pf.Location = new Point(this.Location.X , this.Location.Y + 10);
+            pf.ShowDialog();
+        }
+
+        private void updateCombItem()
+        {
+            this.combo_exp.Items.Clear();
+            this.combo_exp.ResetText();
+            foreach (string ko in exportInfoDict.Keys)
+            {
+                this.combo_exp.Items.Add(ko);
+            }
+            this.combo_exp.SelectedIndex = this.combo_exp.Items.Count - 1;
+        }
+
+        private void btnDelExpSet_Click(object sender, EventArgs e)
+        {
+            if (combo_exp.Items.Count < 1) return;
+            Console.WriteLine(combo_exp.Items[combo_exp.SelectedIndex].ToString());
+            this.exportInfoDict.Remove(combo_exp.Items[combo_exp.SelectedIndex].ToString());
+
+            updateCombItem();
+        }
+
+        public void onAddExpDlgClosing(Dictionary<string, ExportInfo> info)
+        {
+            this.exportInfoDict = info;
+            updateCombItem();
+        }
+
+
     }
 }

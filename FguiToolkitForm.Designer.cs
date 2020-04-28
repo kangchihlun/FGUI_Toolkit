@@ -29,16 +29,16 @@
         private void InitializeComponent()
         {
             this.btnPurgeProject = new System.Windows.Forms.Button();
-            this.comboBox1 = new System.Windows.Forms.ComboBox();
+            this.combo_exp = new System.Windows.Forms.ComboBox();
             this.label1 = new System.Windows.Forms.Label();
             this.datagridView1 = new System.Windows.Forms.DataGridView();
-            this.btnFguiRoot = new System.Windows.Forms.Button();
-            this.txtFguiRoot = new System.Windows.Forms.TextBox();
-            this.button1 = new System.Windows.Forms.Button();
             this.dataGridViewTextBoxColumn2 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.colPath = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.btnFguiRoot = new System.Windows.Forms.Button();
+            this.txtFguiRoot = new System.Windows.Forms.TextBox();
+            this.btnExport = new System.Windows.Forms.Button();
             this.btnAddExpPath = new System.Windows.Forms.Button();
-            this.button2 = new System.Windows.Forms.Button();
+            this.btnDelExpSet = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.datagridView1)).BeginInit();
             this.SuspendLayout();
             // 
@@ -52,13 +52,13 @@
             this.btnPurgeProject.UseVisualStyleBackColor = true;
             this.btnPurgeProject.Click += new System.EventHandler(this.btnPurgeProj_Click);
             // 
-            // comboBox1
+            // combo_exp
             // 
-            this.comboBox1.FormattingEnabled = true;
-            this.comboBox1.Location = new System.Drawing.Point(11, 70);
-            this.comboBox1.Name = "comboBox1";
-            this.comboBox1.Size = new System.Drawing.Size(150, 20);
-            this.comboBox1.TabIndex = 6;
+            this.combo_exp.FormattingEnabled = true;
+            this.combo_exp.Location = new System.Drawing.Point(11, 70);
+            this.combo_exp.Name = "combo_exp";
+            this.combo_exp.Size = new System.Drawing.Size(150, 20);
+            this.combo_exp.TabIndex = 6;
             // 
             // label1
             // 
@@ -83,7 +83,17 @@
             this.datagridView1.TabIndex = 26;
             this.datagridView1.CellMouseClick += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.datagridview1_CellMouseClick);
             this.datagridView1.CellMouseDoubleClick += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.datagridview1_CellMouseDbClick);
-
+            // 
+            // dataGridViewTextBoxColumn2
+            // 
+            this.dataGridViewTextBoxColumn2.HeaderText = "名稱";
+            this.dataGridViewTextBoxColumn2.Name = "dataGridViewTextBoxColumn2";
+            // 
+            // colPath
+            // 
+            this.colPath.HeaderText = "路徑";
+            this.colPath.Name = "colPath";
+            this.colPath.Width = 500;
             // 
             // btnFguiRoot
             // 
@@ -102,25 +112,14 @@
             this.txtFguiRoot.Size = new System.Drawing.Size(330, 22);
             this.txtFguiRoot.TabIndex = 10;
             // 
-            // button1
+            // btnExport
             // 
-            this.button1.Location = new System.Drawing.Point(277, 61);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(88, 30);
-            this.button1.TabIndex = 11;
-            this.button1.Text = "批次導出";
-            this.button1.UseVisualStyleBackColor = true;
-            // 
-            // dataGridViewTextBoxColumn2
-            // 
-            this.dataGridViewTextBoxColumn2.HeaderText = "名稱";
-            this.dataGridViewTextBoxColumn2.Name = "dataGridViewTextBoxColumn2";
-            // 
-            // colPath
-            // 
-            this.colPath.HeaderText = "路徑";
-            this.colPath.Name = "colPath";
-            this.colPath.Width = 500;
+            this.btnExport.Location = new System.Drawing.Point(277, 61);
+            this.btnExport.Name = "btnExport";
+            this.btnExport.Size = new System.Drawing.Size(88, 30);
+            this.btnExport.TabIndex = 11;
+            this.btnExport.Text = "批次導出";
+            this.btnExport.UseVisualStyleBackColor = true;
             // 
             // btnAddExpPath
             // 
@@ -130,29 +129,31 @@
             this.btnAddExpPath.TabIndex = 27;
             this.btnAddExpPath.Text = "+";
             this.btnAddExpPath.UseVisualStyleBackColor = true;
+            this.btnAddExpPath.Click += new System.EventHandler(this.btnAddExpPath_Click);
             // 
-            // button2
+            // btnDelExpSet
             // 
-            this.button2.Location = new System.Drawing.Point(222, 62);
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(49, 29);
-            this.button2.TabIndex = 28;
-            this.button2.Text = "+";
-            this.button2.UseVisualStyleBackColor = true;
+            this.btnDelExpSet.Location = new System.Drawing.Point(222, 62);
+            this.btnDelExpSet.Name = "btnDelExpSet";
+            this.btnDelExpSet.Size = new System.Drawing.Size(49, 29);
+            this.btnDelExpSet.TabIndex = 28;
+            this.btnDelExpSet.Text = "-";
+            this.btnDelExpSet.UseVisualStyleBackColor = true;
+            this.btnDelExpSet.Click += new System.EventHandler(this.btnDelExpSet_Click);
             // 
             // FguiToolkitForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(525, 594);
-            this.Controls.Add(this.button2);
+            this.Controls.Add(this.btnDelExpSet);
             this.Controls.Add(this.btnAddExpPath);
-            this.Controls.Add(this.button1);
+            this.Controls.Add(this.btnExport);
             this.Controls.Add(this.txtFguiRoot);
             this.Controls.Add(this.btnFguiRoot);
             this.Controls.Add(this.datagridView1);
             this.Controls.Add(this.label1);
-            this.Controls.Add(this.comboBox1);
+            this.Controls.Add(this.combo_exp);
             this.Controls.Add(this.btnPurgeProject);
             this.MaximumSize = new System.Drawing.Size(541, 633);
             this.MinimumSize = new System.Drawing.Size(541, 633);
@@ -167,16 +168,16 @@
         #endregion
 
         private System.Windows.Forms.Button btnPurgeProject;
-        private System.Windows.Forms.ComboBox comboBox1;
+        private System.Windows.Forms.ComboBox combo_exp;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.DataGridView datagridView1;
         private System.Windows.Forms.Button btnFguiRoot;
         private System.Windows.Forms.TextBox txtFguiRoot;
-        private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.Button btnExport;
         private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn2;
         private System.Windows.Forms.DataGridViewTextBoxColumn colPath;
         private System.Windows.Forms.Button btnAddExpPath;
-        private System.Windows.Forms.Button button2;
+        private System.Windows.Forms.Button btnDelExpSet;
     }
 }
 
