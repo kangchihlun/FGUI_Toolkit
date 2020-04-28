@@ -39,6 +39,7 @@
             this.btnExport = new System.Windows.Forms.Button();
             this.btnAddExpPath = new System.Windows.Forms.Button();
             this.btnDelExpSet = new System.Windows.Forms.Button();
+            this.btnModifyExp = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.datagridView1)).BeginInit();
             this.SuspendLayout();
             // 
@@ -55,19 +56,20 @@
             // combo_exp
             // 
             this.combo_exp.FormattingEnabled = true;
-            this.combo_exp.Location = new System.Drawing.Point(11, 70);
+            this.combo_exp.Location = new System.Drawing.Point(14, 71);
             this.combo_exp.Name = "combo_exp";
             this.combo_exp.Size = new System.Drawing.Size(150, 20);
             this.combo_exp.TabIndex = 6;
+            this.combo_exp.SelectedIndexChanged += new System.EventHandler(this.combo_exp_SelectedIndexChanged);
             // 
             // label1
             // 
             this.label1.AutoSize = true;
             this.label1.Location = new System.Drawing.Point(12, 52);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(101, 12);
+            this.label1.Size = new System.Drawing.Size(53, 12);
             this.label1.TabIndex = 7;
-            this.label1.Text = "切換預設導出路徑";
+            this.label1.Text = "導出路徑";
             // 
             // datagridView1
             // 
@@ -114,7 +116,7 @@
             // 
             // btnExport
             // 
-            this.btnExport.Location = new System.Drawing.Point(277, 61);
+            this.btnExport.Location = new System.Drawing.Point(425, 65);
             this.btnExport.Name = "btnExport";
             this.btnExport.Size = new System.Drawing.Size(88, 30);
             this.btnExport.TabIndex = 11;
@@ -123,9 +125,9 @@
             // 
             // btnAddExpPath
             // 
-            this.btnAddExpPath.Location = new System.Drawing.Point(167, 62);
+            this.btnAddExpPath.Location = new System.Drawing.Point(174, 65);
             this.btnAddExpPath.Name = "btnAddExpPath";
-            this.btnAddExpPath.Size = new System.Drawing.Size(49, 29);
+            this.btnAddExpPath.Size = new System.Drawing.Size(30, 30);
             this.btnAddExpPath.TabIndex = 27;
             this.btnAddExpPath.Text = "+";
             this.btnAddExpPath.UseVisualStyleBackColor = true;
@@ -133,19 +135,30 @@
             // 
             // btnDelExpSet
             // 
-            this.btnDelExpSet.Location = new System.Drawing.Point(222, 62);
+            this.btnDelExpSet.Location = new System.Drawing.Point(237, 65);
             this.btnDelExpSet.Name = "btnDelExpSet";
-            this.btnDelExpSet.Size = new System.Drawing.Size(49, 29);
+            this.btnDelExpSet.Size = new System.Drawing.Size(30, 30);
             this.btnDelExpSet.TabIndex = 28;
             this.btnDelExpSet.Text = "-";
             this.btnDelExpSet.UseVisualStyleBackColor = true;
             this.btnDelExpSet.Click += new System.EventHandler(this.btnDelExpSet_Click);
+            // 
+            // btnModifyExp
+            // 
+            this.btnModifyExp.Location = new System.Drawing.Point(208, 65);
+            this.btnModifyExp.Name = "btnModifyExp";
+            this.btnModifyExp.Size = new System.Drawing.Size(25, 30);
+            this.btnModifyExp.TabIndex = 29;
+            this.btnModifyExp.Text = "...";
+            this.btnModifyExp.UseVisualStyleBackColor = true;
+            this.btnModifyExp.Click += new System.EventHandler(this.btnModifyExp_Click);
             // 
             // FguiToolkitForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(525, 594);
+            this.Controls.Add(this.btnModifyExp);
             this.Controls.Add(this.btnDelExpSet);
             this.Controls.Add(this.btnAddExpPath);
             this.Controls.Add(this.btnExport);
@@ -178,6 +191,7 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn colPath;
         private System.Windows.Forms.Button btnAddExpPath;
         private System.Windows.Forms.Button btnDelExpSet;
+        private System.Windows.Forms.Button btnModifyExp;
     }
 }
 

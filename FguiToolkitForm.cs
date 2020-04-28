@@ -12,7 +12,7 @@ using System.Windows.Forms;
 using System.Security;
 using System.Xml.Linq;
 using Newtonsoft.Json;
-
+using Newtonsoft.Json.Linq;
 
 namespace fgui_toolkit
 {
@@ -54,7 +54,6 @@ namespace fgui_toolkit
             }
         }
 
-
         private void btnFguiRoot_Click(object sender, EventArgs e)
         {
             datagridView1.Rows.Clear();
@@ -79,6 +78,7 @@ namespace fgui_toolkit
                 catch (SecurityException ex)
                 {
                     MessageBox.Show("不是一個 .fairy 檔案 ");
+                    Console.WriteLine(ex);
                 }
             }
 
@@ -164,7 +164,7 @@ namespace fgui_toolkit
                                 if(res.Name.ToString() == "folder") // 這個不知道要幹嘛用的
                                     resource.bUsed = true;
 
-                                if (res.Name.ToString() == "sound") //聲音檔先暫時掠過，還得搜索 transition 裡面的
+                                if (res.Name.ToString() == "sound") //聲音檔先暫時略過，還得搜索 transition 裡面的
                                     resource.bUsed = true;
                                 
                                 if (null != res.Attribute("exported"))
@@ -399,11 +399,6 @@ namespace fgui_toolkit
             }
         }
 
-        private void btnSwitchExpPath_Click(object sender, EventArgs e)
-        {
-
-        }
-
         public void UpdateUI(string wParam, string lParam1, string lParam2)
         {
             UIEvent.WaitOne(1000);
@@ -501,7 +496,7 @@ namespace fgui_toolkit
         private void btnDelExpSet_Click(object sender, EventArgs e)
         {
             if (combo_exp.Items.Count < 1) return;
-            Console.WriteLine(combo_exp.Items[combo_exp.SelectedIndex].ToString());
+            //Console.WriteLine(combo_exp.Items[combo_exp.SelectedIndex].ToString());
             this.exportInfoDict.Remove(combo_exp.Items[combo_exp.SelectedIndex].ToString());
 
             updateCombItem();
@@ -511,6 +506,90 @@ namespace fgui_toolkit
         {
             this.exportInfoDict = info;
             updateCombItem();
+        }
+
+        private void btnModifyExp_Click(object sender, EventArgs e)
+        {
+            if (this.combo_exp.Items.Count < 1) return;
+            string _iName = this.combo_exp.Items[this.combo_exp.SelectedIndex].ToString();
+            ExportInfo info = exportInfoDict[_iName];
+            modifyPackageForm mf = new modifyPackageForm(_iName, info, this);
+            mf.TopMost = true;
+            mf.StartPosition = FormStartPosition.Manual;
+            mf.Location = new Point(this.Location.X, this.Location.Y + 10);
+            mf.ShowDialog();
+        }
+
+        public void onModifyExpDlgClosing(string _iName, ExportInfo info)
+        {
+            if(exportInfoDict.ContainsKey(_iName))
+            {
+                exportInfoDict[_iName] = info;
+                string expinfopath = FguiLocation + "\\exportinfo.json";
+                File.WriteAllText(expinfopath, JsonConvert.SerializeObject(exportInfoDict));
+            }
+        }
+
+        private void combo_exp_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            // not quite useful this time
+            // 最低侵入性修改
+            // modifyExportPath(info); 
+        }
+
+        // not quite useful this time
+        private void modifyExportPath(ExportInfo info)
+        {
+            List<string> dirs = Directory.GetDirectories(FguiLocation, "*", SearchOption.TopDirectoryOnly).ToList();
+            foreach (string dir in dirs)
+            {
+                string lastfolderName = Path.GetFileName(dir);
+                if (Global.ContainStr(lastfolderName, "assets"))
+                {
+                    List<string> sdirs = Directory.GetDirectories(dir, "*", SearchOption.TopDirectoryOnly).ToList();
+                    if (sdirs.Count < 1) return;
+                    string[] fileEntries = Directory.GetFiles(sdirs[0], "*.xml");
+                    foreach (string fileName in fileEntries)
+                    {
+                        string curFile = Path.GetFileName(fileName).Split('.')[0];
+                        if (!Global.ContainStr(curFile, "package")) continue;
+                        //Console.WriteLine(fileName);
+                        XDocument xmlFile = XDocument.Load(fileName);
+                        var query = from c in xmlFile.Elements("packageDescription").Elements("publish") select c;
+                        foreach (XElement book in query)
+                        {
+                            book.Attribute("name").Value = info.PackageName;
+                        }
+                        xmlFile.Save(fileName);
+                    }
+                }
+
+                if (Global.ContainStr(lastfolderName, "settings"))
+                {
+                    string settingjsonpath = dir + "/Publish.json";
+                    if (!File.Exists(settingjsonpath)) continue;
+                    //Console.WriteLine(settingjsonpath);
+                    JObject publishjson = JObject.Parse(File.ReadAllText(settingjsonpath));
+                    publishjson["path"] = info.ExportPath;
+                    publishjson["branchPath"] = info.ExportPath_Branch;
+                    using (FileStream fs = File.Open(settingjsonpath, FileMode.OpenOrCreate))
+                    using (StreamWriter sw = new StreamWriter(fs))
+                    using (JsonTextWriter jw = new JsonTextWriter(sw))
+                    {
+                        jw.Formatting = Formatting.Indented;
+                        //jw.IndentChar = '\t';
+                        //jw.Indentation = 1;
+                        publishjson.WriteTo(jw);
+                    }
+                }
+            }
+        }
+
+
+
+        private void btnSwitchExpPath_Click(object sender, EventArgs e)
+        {
+
         }
 
 
