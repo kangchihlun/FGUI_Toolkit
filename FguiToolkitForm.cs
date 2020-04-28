@@ -149,6 +149,9 @@ namespace fgui_toolkit
                                 if(res.Name.ToString() == "folder") // 這個不知道要幹嘛用的
                                     resource.bUsed = true;
 
+                                if (res.Name.ToString() == "sound") //聲音檔先暫時掠過，還得搜索 transition 裡面的
+                                    resource.bUsed = true;
+                                
                                 if (null != res.Attribute("exported"))
                                 {
                                     resource.bUsed = res.Attribute("exported").Value == "true" ? true : false;
@@ -184,7 +187,7 @@ namespace fgui_toolkit
 
             Dictionary<string, FResource> resdict_branch_unused = new Dictionary<string, FResource>();
             DirectoryInfo di = new DirectoryInfo(assetspath);
-            Console.WriteLine(di.Parent.FullName);
+            //Console.WriteLine(di.Parent.FullName);
             List<string> assetsdirs = Directory.GetDirectories(di.Parent.FullName, "*", SearchOption.TopDirectoryOnly).ToList();
             foreach (string dir in assetsdirs)
             {
