@@ -711,10 +711,14 @@ namespace fgui_toolkit
             }
 
             /// revert all change
-            string strCmd1 = "cd "+ FguiLocation + "\n";
-            string strCmd2 = "git reset --hard";
-            System.Diagnostics.Process.Start("CMD.exe", strCmd1);
-            System.Diagnostics.Process.Start("CMD.exe", strCmd2);
+            ProcessStartInfo commandInfo = new ProcessStartInfo();
+            commandInfo.WorkingDirectory = FguiLocation;
+            commandInfo.UseShellExecute = false;
+            commandInfo.RedirectStandardInput = true;
+            commandInfo.RedirectStandardOutput = true;
+            commandInfo.FileName = "git.exe";
+            commandInfo.Arguments = "reset --hard";
+            Process process = Process.Start(commandInfo);
         }
     }
 }
