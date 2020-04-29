@@ -25,6 +25,8 @@ namespace fgui_toolkit
             this.FormClosing += Form1_Closing;
             this.exportInfoDict = info;
             _parentform = parentform;
+            KeyPreview = true;
+            this.KeyDown += new KeyEventHandler(Form1_KeyDown);
         }
 
         private void Form1_Closing(object sender, FormClosingEventArgs e)
@@ -40,10 +42,15 @@ namespace fgui_toolkit
                 expinfo.ExportPath = txtExpPath.Text;
                 expinfo.ExportPath_Branch = txtBrExpPath.Text;
                 exportInfoDict[txtGroupName.Text] = expinfo;
-                string expinfopath = FguiLocation + "\\exportinfo.json";
+                string expinfopath = FguiLocation + "\\settings\\exportinfo.json";
                 File.WriteAllText(expinfopath, JsonConvert.SerializeObject(exportInfoDict));
                 _parentform.onAddExpDlgClosing(exportInfoDict);
             }
+        }
+        private void Form1_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Escape)
+                this.Close();
         }
     }
 }

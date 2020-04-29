@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Diagnostics;
 using System.Windows.Forms;
 using System.Security;
 using System.Xml.Linq;
@@ -18,6 +19,8 @@ namespace fgui_toolkit
 {
     public partial class FguiToolkitForm : Form
     {
+        private string exeLocation = "";
+
         private string FguiLocation = "";
         private AutoResetEvent UIEvent = new AutoResetEvent(false);
 
@@ -43,9 +46,12 @@ namespace fgui_toolkit
             FguiLocation = sb.ToString();
             txtFguiRoot.Text = FguiLocation;
 
-            if (FguiLocation.Length>0)
+            t = Global.GetPrivateProfileString("FGUI", "Exe", "", sb, 255, Application.StartupPath + "\\Config.ini");
+            exeLocation = sb.ToString();
+
+            if (FguiLocation.Length > 0)
             {
-                string expinfopath = FguiLocation + "\\exportinfo.json";
+                string expinfopath = FguiLocation + "\\settings\\exportinfo.json";
                 if (File.Exists(expinfopath))
                 {
                     exportInfoDict = JsonConvert.DeserializeObject<Dictionary<string, ExportInfo>>(File.ReadAllText(expinfopath));
@@ -81,8 +87,34 @@ namespace fgui_toolkit
                     Console.WriteLine(ex);
                 }
             }
+        }
 
-
+        private void fetchFairyExePath()
+        {
+            if (exeLocation.Length > 0)
+            {
+                if (File.Exists(exeLocation)) return;
+            }
+            
+            var process = Process.GetCurrentProcess(); // Or whatever method you are using
+            string fullPath = process.MainModule.FileName;
+            
+            foreach (Process PPath in Process.GetProcesses())
+            {
+                if (PPath.ProcessName.ToString() == "FairyGUI-Editor")
+                {
+                    exeLocation = PPath.MainModule.FileName;
+                    break;
+                }
+            }
+            if (exeLocation.Length > 0)
+            {
+                Global.WritePrivateProfileString("FGUI", "Exe", exeLocation, Application.StartupPath + "\\Config.ini");
+            }
+            else
+            {
+                MessageBox.Show("無法找到FairyGUI.exe，請先開啟專案");
+            }
         }
 
         private void btnPurgeProj_Click(object sender, EventArgs e)
@@ -98,6 +130,7 @@ namespace fgui_toolkit
                 if (lastfolderName != "assets") continue;
                 doPurgeProj(dir);
             }
+            fetchFairyExePath();
         }
 
         private void doPurgeProj(string assetspath)
@@ -290,7 +323,7 @@ namespace fgui_toolkit
                             {
                                 Console.WriteLine("2314");
                             }
-                            Console.WriteLine(Path.GetFileName(fileName));
+                            //Console.WriteLine(Path.GetFileName(fileName));
                             #endif
 
                             // 發現一個致命的錯誤，直接查找位於xml內 filename 這個屬性有可能是錯的，一定要從src再回去 package 裡面找
@@ -525,7 +558,7 @@ namespace fgui_toolkit
             if(exportInfoDict.ContainsKey(_iName))
             {
                 exportInfoDict[_iName] = info;
-                string expinfopath = FguiLocation + "\\exportinfo.json";
+                string expinfopath = FguiLocation + "\\settings\\exportinfo.json";
                 File.WriteAllText(expinfopath, JsonConvert.SerializeObject(exportInfoDict));
             }
         }

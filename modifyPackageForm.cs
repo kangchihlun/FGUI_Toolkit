@@ -32,6 +32,8 @@ namespace fgui_toolkit
             txtExpPath.Text = this.exportInfo.ExportPath;
             txtBrExpPath.Text = this.exportInfo.ExportPath_Branch;
             txtGroupName.Enabled = false;
+            KeyPreview = true;
+            this.KeyDown += new KeyEventHandler(Form1_KeyDown);
         }
 
         private void Form1_Closing(object sender, FormClosingEventArgs e)
@@ -44,10 +46,16 @@ namespace fgui_toolkit
                 this.exportInfo.PackageName = txtPkgName.Text;
                 this.exportInfo.ExportPath = txtExpPath.Text;
                 this.exportInfo.ExportPath_Branch = txtBrExpPath.Text;   
-                string expinfopath = FguiLocation + "\\exportinfo.json";
+                string expinfopath = FguiLocation + "\\settings\\exportinfo.json";
                 
                 _parentform.onModifyExpDlgClosing(this._iName, this.exportInfo);
             }
+        }
+
+        private void Form1_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Escape)
+                this.Close();
         }
     }
 }
