@@ -135,7 +135,7 @@
             // 
             // btnDelExpSet
             // 
-            this.btnDelExpSet.Location = new System.Drawing.Point(237, 65);
+            this.btnDelExpSet.Location = new System.Drawing.Point(242, 65);
             this.btnDelExpSet.Name = "btnDelExpSet";
             this.btnDelExpSet.Size = new System.Drawing.Size(30, 30);
             this.btnDelExpSet.TabIndex = 28;
@@ -147,9 +147,9 @@
             // 
             this.btnModifyExp.Location = new System.Drawing.Point(208, 65);
             this.btnModifyExp.Name = "btnModifyExp";
-            this.btnModifyExp.Size = new System.Drawing.Size(25, 30);
+            this.btnModifyExp.Size = new System.Drawing.Size(30, 30);
             this.btnModifyExp.TabIndex = 29;
-            this.btnModifyExp.Text = "...";
+            this.btnModifyExp.Text = " ░";
             this.btnModifyExp.UseVisualStyleBackColor = true;
             this.btnModifyExp.Click += new System.EventHandler(this.btnModifyExp_Click);
             // 

@@ -49,15 +49,17 @@ namespace fgui_toolkit
             t = Global.GetPrivateProfileString("FGUI", "Exe", "", sb, 255, Application.StartupPath + "\\Config.ini");
             exeLocation = sb.ToString();
 
+            exportInfoDict.Clear();
             if (FguiLocation.Length > 0)
             {
                 string expinfopath = FguiLocation + "\\settings\\exportinfo.json";
                 if (File.Exists(expinfopath))
                 {
                     exportInfoDict = JsonConvert.DeserializeObject<Dictionary<string, ExportInfo>>(File.ReadAllText(expinfopath));
-                    updateCombItem();
+
                 }
             }
+            updateCombItem();
         }
 
         private void btnFguiRoot_Click(object sender, EventArgs e)
@@ -87,6 +89,7 @@ namespace fgui_toolkit
                     Console.WriteLine(ex);
                 }
             }
+            LoadConfig();
         }
 
         private void fetchFairyExePath()
@@ -95,10 +98,10 @@ namespace fgui_toolkit
             {
                 if (File.Exists(exeLocation)) return;
             }
-            
+
             var process = Process.GetCurrentProcess(); // Or whatever method you are using
             string fullPath = process.MainModule.FileName;
-            
+
             foreach (Process PPath in Process.GetProcesses())
             {
                 if (PPath.ProcessName.ToString() == "FairyGUI-Editor")
@@ -115,6 +118,22 @@ namespace fgui_toolkit
             {
                 MessageBox.Show("無法找到FairyGUI.exe，請先開啟專案");
             }
+        }
+
+        private bool isFairyRunning()
+        {
+            var process = Process.GetCurrentProcess(); // Or whatever method you are using
+            string fullPath = process.MainModule.FileName;
+            bool bFound = false;
+            foreach (Process PPath in Process.GetProcesses())
+            {
+                if (PPath.ProcessName.ToString() == "FairyGUI-Editor")
+                {
+                    bFound = true;
+                    break;
+                }
+            }
+            return bFound;
         }
 
         private void btnPurgeProj_Click(object sender, EventArgs e)
@@ -157,10 +176,10 @@ namespace fgui_toolkit
                 if (!Global.ContainStr(curFile, "package")) continue;
                 packageFileLocation = fileName;
                 XElement rootElement = XElement.Load(fileName);
-                
+
                 if (rootElement.Name.ToString() == "packageDescription")
                     packageDesc = rootElement.Attribute("id").Value;
-                
+
                 foreach (XElement childElement in rootElement.Elements())
                 {
                     if (childElement.Name.ToString() == "resources")
@@ -183,7 +202,7 @@ namespace fgui_toolkit
                                 if (null != res.Attribute("atlas"))
                                     img.atlas = res.Attribute("atlas").Value;
                                 if (null != res.Attribute("exported"))
-                                    img.bUsed = res.Attribute("exported").Value=="true"?true:false;
+                                    img.bUsed = res.Attribute("exported").Value == "true" ? true : false;
                                 resourceIDDict[id] = img;
                             }
                             else
@@ -194,12 +213,12 @@ namespace fgui_toolkit
                                 resource.path = path;
                                 if ("/" == path)
                                     resource.bUsed = true;
-                                if(res.Name.ToString() == "folder") // 這個不知道要幹嘛用的
+                                if (res.Name.ToString() == "folder") // 這個不知道要幹嘛用的
                                     resource.bUsed = true;
 
                                 if (res.Name.ToString() == "sound") //聲音檔先暫時略過，還得搜索 transition 裡面的
                                     resource.bUsed = true;
-                                
+
                                 if (null != res.Attribute("exported"))
                                 {
                                     resource.bUsed = res.Attribute("exported").Value == "true" ? true : false;
@@ -211,13 +230,13 @@ namespace fgui_toolkit
                             }
                         }
                     }
-                    
+
                 }
             }
             #endregion
 
             #region read main scene xml
-            
+
             // Scan Fonts
             foreach (string fonts in fontDict.Keys)
             {
@@ -239,7 +258,7 @@ namespace fgui_toolkit
             List<string> assetsdirs = Directory.GetDirectories(di.Parent.FullName, "*", SearchOption.TopDirectoryOnly).ToList();
             foreach (string dir in assetsdirs)
             {
-                if (Global.ContainStr(dir,"assets_"))
+                if (Global.ContainStr(dir, "assets_"))
                 {
                     List<string> assSubds = Directory.GetDirectories(dir, "*", SearchOption.TopDirectoryOnly).ToList();
                     if (assSubds.Count < 1) return;
@@ -259,8 +278,8 @@ namespace fgui_toolkit
                                     string path = res.Attribute("path").Value;
                                     foreach (string id in resourceIDDict.Keys)
                                     {
-                                        if( resourceIDDict[id].path == path &&
-                                            resourceIDDict[id].name == name )
+                                        if (resourceIDDict[id].path == path &&
+                                            resourceIDDict[id].name == name)
                                         {
                                             if (!resourceIDDict[id].bUsed)
                                             {
@@ -268,7 +287,7 @@ namespace fgui_toolkit
                                                 FResource resource = new FResource();
                                                 resource.id = id;
                                                 resource.name = name;
-                                                resource.path = Path.GetDirectoryName(psn)+path;
+                                                resource.path = Path.GetDirectoryName(psn) + path;
                                                 resdict_branch_unused[rresid] = resource;
 
                                                 //Console.WriteLine(resourceIDDict[id].name);
@@ -289,8 +308,8 @@ namespace fgui_toolkit
             {
                 if (!resourceIDDict[id].bUsed)
                 {
-                    string fullpath = Path.GetDirectoryName(packageFileLocation)+resourceIDDict[id].path.Replace('/', '\\') + resourceIDDict[id].name;
-                    Global.UI(resourceIDDict[id].id,resourceIDDict[id].name,fullpath) ;
+                    string fullpath = Path.GetDirectoryName(packageFileLocation) + resourceIDDict[id].path.Replace('/', '\\') + resourceIDDict[id].name;
+                    Global.UI(resourceIDDict[id].id, resourceIDDict[id].name, fullpath);
                 }
             }
             // 分支
@@ -304,7 +323,7 @@ namespace fgui_toolkit
             }
         }
 
-        private void checkResInUseRecursive(string fileName,string root)
+        private void checkResInUseRecursive(string fileName, string root)
         {
             if (!File.Exists(fileName)) return;
             string curext = Path.GetExtension(fileName);
@@ -318,13 +337,13 @@ namespace fgui_toolkit
                     {
                         if (null != res.Attribute("fileName"))
                         {
-                            #if DEBUG
-                            if(Path.GetFileName(fileName)== "dialogRoad.xml")
+#if DEBUG
+                            if (Path.GetFileName(fileName) == "dialogRoad.xml")
                             {
                                 Console.WriteLine("2314");
                             }
                             //Console.WriteLine(Path.GetFileName(fileName));
-                            #endif
+#endif
 
                             // 發現一個致命的錯誤，直接查找位於xml內 filename 這個屬性有可能是錯的，一定要從src再回去 package 裡面找
                             string extname = Path.GetExtension(res.Attribute("fileName").Value);
@@ -370,7 +389,7 @@ namespace fgui_toolkit
                                     checkResInUseRecursive(root + path_ + name_, root);
                                 }
                             }
-                           
+
                             foreach (XElement ls in res.Elements())
                             {
                                 if (ls.Name.ToString() == "item")
@@ -422,10 +441,10 @@ namespace fgui_toolkit
                 while ((line = reader.ReadLine()) != null)
                 {
                     List<string> linespl = line.Split(' ').ToList();
-                    if(Global.ContainStr(linespl[0], "char"))
+                    if (Global.ContainStr(linespl[0], "char"))
                     {
                         string img = linespl[2].Split('=')[1];
-                        if(resourceIDDict.ContainsKey(img))
+                        if (resourceIDDict.ContainsKey(img))
                             resourceIDDict[img].bUsed = true;
                     }
                 }
@@ -444,7 +463,7 @@ namespace fgui_toolkit
                 }
                 else
                 {
-                    DebugView(wParam,lParam1, lParam2);
+                    DebugView(wParam, lParam1, lParam2);
                 }
             }
             catch (Exception ex)
@@ -454,13 +473,13 @@ namespace fgui_toolkit
             UIEvent.Set();
         }
 
-        private void DebugView(string id, string name,string path)
+        private void DebugView(string id, string name, string path)
         {
             ListViewItem NListView = new ListViewItem();
             NListView.SubItems.Add(new ListViewItem.ListViewSubItem().Text = id);
             NListView.SubItems.Add(new ListViewItem.ListViewSubItem().Text = name);
             NListView.SubItems.Add(new ListViewItem.ListViewSubItem().Text = path);
-            datagridView1.Rows.Add(new string[] { name,path });
+            datagridView1.Rows.Add(new string[] { name, path });
 
         }
 
@@ -508,10 +527,10 @@ namespace fgui_toolkit
 
         private void btnAddExpPath_Click(object sender, EventArgs e)
         {
-            newPackageForm pf = new newPackageForm(this.exportInfoDict,this);
+            newPackageForm pf = new newPackageForm(this.exportInfoDict, this);
             pf.TopMost = true;
             pf.StartPosition = FormStartPosition.Manual;
-            pf.Location = new Point(this.Location.X , this.Location.Y + 10);
+            pf.Location = new Point(this.Location.X, this.Location.Y + 10);
             pf.ShowDialog();
         }
 
@@ -555,7 +574,7 @@ namespace fgui_toolkit
 
         public void onModifyExpDlgClosing(string _iName, ExportInfo info)
         {
-            if(exportInfoDict.ContainsKey(_iName))
+            if (exportInfoDict.ContainsKey(_iName))
             {
                 exportInfoDict[_iName] = info;
                 string expinfopath = FguiLocation + "\\settings\\exportinfo.json";
@@ -570,7 +589,6 @@ namespace fgui_toolkit
             // modifyExportPath(info); 
         }
 
-        // not quite useful this time
         private void modifyExportPath(ExportInfo info)
         {
             List<string> dirs = Directory.GetDirectories(FguiLocation, "*", SearchOption.TopDirectoryOnly).ToList();
@@ -618,13 +636,85 @@ namespace fgui_toolkit
             }
         }
 
-
-
-        private void btnSwitchExpPath_Click(object sender, EventArgs e)
+        private void btnExport_Click(object sender, EventArgs e)
         {
+            if (isFairyRunning())
+            {
+                MessageBox.Show("請先關閉 FairyGui Editor 以繼續");
+                return;
+            }
+            if (exeLocation.Length < 1)
+            {
+                MessageBox.Show("請先執行場景資源掃描以繼續");
+                return;
+            }
+            if (!File.Exists(exeLocation)) return;
 
+            string selstr = combo_exp.Items[combo_exp.SelectedIndex].ToString();
+            ExportInfo expinfo = new ExportInfo();
+            if (selstr.Length > 0)
+                expinfo = exportInfoDict[selstr];
+
+            modifyExportPath(expinfo);
+
+            List<string> dirs = Directory.GetDirectories(FguiLocation, "*", SearchOption.TopDirectoryOnly).ToList();
+            // branch exported first
+            foreach (string dir in dirs)
+            {
+                string lastfolderName = Path.GetFileName(dir);
+                if (Global.ContainStr(lastfolderName, "assets"))
+                {
+                    // to check name patter is match ?
+                    bool bNamePatternMatch = true;
+
+                    int substart = Math.Min(lastfolderName.Length, "assets_".Length);
+                    string gName = lastfolderName.Substring(substart);
+                    // if this guy don't write any expression on group name , don't check just export directly.
+                    if (Global.ContainStr(selstr, "?") || Global.ContainStr(selstr, "*"))
+                    {
+                        bNamePatternMatch = false;
+                        List<string> match_spl = selstr.Split('_').ToList();
+                        List<string> lastfld_spl = gName.Split('_').ToList();
+
+                        if (match_spl.Count == lastfld_spl.Count)
+                        {
+                            int matchcnt = 0;
+                            for (int i = 0; i < lastfld_spl.Count; i++)
+                            {
+                                if (match_spl[i] == lastfld_spl[i])
+                                    matchcnt++;
+                                else if (match_spl[i] == "?")
+                                    matchcnt++;
+                                else if (match_spl[i] == "*")
+                                    matchcnt++;
+                            }
+                            if (matchcnt == lastfld_spl.Count)
+                                bNamePatternMatch = true;
+                        }
+                    }
+
+                    if (bNamePatternMatch)
+                    {
+                        Console.WriteLine(lastfolderName);
+                    }
+                }
+            }
+
+            // then export main branch 
+            foreach (string dir in dirs)
+            {
+                string lastfolderName = Path.GetFileName(dir);
+                if (lastfolderName == "assets")
+                {
+
+                }
+            }
+
+            /// revert all change
+            string strCmdText;
+            strCmdText = "cd "+ FguiLocation + "\n";
+            strCmdText += "git reset --hard";
+            System.Diagnostics.Process.Start("CMD.exe", strCmdText);
         }
-
-
     }
 }

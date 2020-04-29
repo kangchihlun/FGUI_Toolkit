@@ -104,7 +104,7 @@
             this.txtGroupName.Name = "txtGroupName";
             this.txtGroupName.Size = new System.Drawing.Size(89, 22);
             this.txtGroupName.TabIndex = 17;
-            this.txtGroupName.Text = "niuniu1";
+            this.txtGroupName.Text = "S001_*_*";
             // 
             // newPackageForm
             // 
