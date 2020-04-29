@@ -60,7 +60,6 @@
             this.combo_exp.Name = "combo_exp";
             this.combo_exp.Size = new System.Drawing.Size(150, 20);
             this.combo_exp.TabIndex = 6;
-            this.combo_exp.SelectedIndexChanged += new System.EventHandler(this.combo_exp_SelectedIndexChanged);
             // 
             // label1
             // 

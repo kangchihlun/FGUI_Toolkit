@@ -582,13 +582,6 @@ namespace fgui_toolkit
             }
         }
 
-        private void combo_exp_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            // not quite useful this time
-            // 最低侵入性修改
-            // modifyExportPath(info); 
-        }
-
         private void modifyExportPath(ExportInfo info)
         {
             List<string> dirs = Directory.GetDirectories(FguiLocation, "*", SearchOption.TopDirectoryOnly).ToList();
@@ -657,6 +650,12 @@ namespace fgui_toolkit
 
             modifyExportPath(expinfo);
 
+            Thread a = new Thread(new ParameterizedThreadStart(startexportThread));
+            a.Start(selstr);
+        }
+
+        private void startexportThread(object selstr)
+        {
             List<string> dirs = Directory.GetDirectories(FguiLocation, "*", SearchOption.TopDirectoryOnly).ToList();
             // branch exported first
             foreach (string dir in dirs)
@@ -670,10 +669,10 @@ namespace fgui_toolkit
                     int substart = Math.Min(lastfolderName.Length, "assets_".Length);
                     string gName = lastfolderName.Substring(substart);
                     // if this guy don't write any expression on group name , don't check just export directly.
-                    if (Global.ContainStr(selstr, "?") || Global.ContainStr(selstr, "*"))
+                    if (Global.ContainStr(selstr.ToString(), "?") || Global.ContainStr(selstr.ToString(), "*"))
                     {
                         bNamePatternMatch = false;
-                        List<string> match_spl = selstr.Split('_').ToList();
+                        List<string> match_spl = selstr.ToString().Split('_').ToList();
                         List<string> lastfld_spl = gName.Split('_').ToList();
 
                         if (match_spl.Count == lastfld_spl.Count)
@@ -695,7 +694,26 @@ namespace fgui_toolkit
 
                     if (bNamePatternMatch)
                     {
-                        Console.WriteLine(lastfolderName);
+                        string execString = " -p ";
+                        //& pwd & fguiFolderName & fguiPkgName & ".fairy -t " & fsn ' & " -o " & pwd & layaFolderName
+                        List<String> fileEntries = Directory.GetFiles(FguiLocation, "*.fairy").ToList();
+                        if (fileEntries.Count < 1) continue;
+                        execString += fileEntries[0].Replace('\\', '/');
+                        execString += " -t " + gName;
+
+
+                        ProcessStartInfo commandInfosub = new ProcessStartInfo();
+                        commandInfosub.WorkingDirectory = FguiLocation;
+                        commandInfosub.UseShellExecute = false;
+                        commandInfosub.RedirectStandardInput = true;
+                        commandInfosub.RedirectStandardOutput = true;
+                        commandInfosub.FileName = exeLocation;
+                        commandInfosub.Arguments = execString;
+                        Process processsub = Process.Start(commandInfosub);
+                        Console.WriteLine(exeLocation + execString);
+                        processsub.WaitForExit();
+                        Thread.Sleep(100);
+                        Console.WriteLine(lastfolderName + " exported ");
                     }
                 }
             }
@@ -709,6 +727,13 @@ namespace fgui_toolkit
 
                 }
             }
+
+
+            foreach (var proc in Process.GetProcessesByName("FairyGUI-Editor"))
+            {
+                proc.Kill();
+            }
+
 
             /// revert all change
             ProcessStartInfo commandInfo = new ProcessStartInfo();
