@@ -650,12 +650,18 @@ namespace fgui_toolkit
 
             modifyExportPath(expinfo);
 
-            Thread a = new Thread(new ParameterizedThreadStart(startexportThread));
-            a.Start(selstr);
+            ParameterizedThreadStart starterp = new ParameterizedThreadStart(startexportThread);
+            Thread a = new Thread(starterp);
+            ExportThreadParm parm = new ExportThreadParm();
+            parm.selstr = selstr;
+            parm.ExportPath_Branch = expinfo.ExportPath_Branch;
+            a.Start(parm);
+            System.Diagnostics.Process.Start("explorer.exe", parm.ExportPath_Branch.Replace('\\', '/'));
         }
-
-        private void startexportThread(object selstr)
+        
+        private void startexportThread(object parm)
         {
+            ExportThreadParm expparm = (ExportThreadParm)parm;
             List<string> dirs = Directory.GetDirectories(FguiLocation, "*", SearchOption.TopDirectoryOnly).ToList();
             // branch exported first
             foreach (string dir in dirs)
@@ -669,10 +675,10 @@ namespace fgui_toolkit
                     int substart = Math.Min(lastfolderName.Length, "assets_".Length);
                     string gName = lastfolderName.Substring(substart);
                     // if this guy don't write any expression on group name , don't check just export directly.
-                    if (Global.ContainStr(selstr.ToString(), "?") || Global.ContainStr(selstr.ToString(), "*"))
+                    if (Global.ContainStr(expparm.selstr, "?") || Global.ContainStr(expparm.selstr, "*"))
                     {
                         bNamePatternMatch = false;
-                        List<string> match_spl = selstr.ToString().Split('_').ToList();
+                        List<string> match_spl = expparm.selstr.Split('_').ToList();
                         List<string> lastfld_spl = gName.Split('_').ToList();
 
                         if (match_spl.Count == lastfld_spl.Count)
@@ -695,7 +701,6 @@ namespace fgui_toolkit
                     if (bNamePatternMatch)
                     {
                         string execString = " -p ";
-                        //& pwd & fguiFolderName & fguiPkgName & ".fairy -t " & fsn ' & " -o " & pwd & layaFolderName
                         List<String> fileEntries = Directory.GetFiles(FguiLocation, "*.fairy").ToList();
                         if (fileEntries.Count < 1) continue;
                         execString += fileEntries[0].Replace('\\', '/');
@@ -724,7 +729,23 @@ namespace fgui_toolkit
                 string lastfolderName = Path.GetFileName(dir);
                 if (lastfolderName == "assets")
                 {
+                    string execString = " -p ";
+                    List<String> fileEntries = Directory.GetFiles(FguiLocation, "*.fairy").ToList();
+                    if (fileEntries.Count < 1) continue;
+                    execString += fileEntries[0].Replace('\\', '/');
 
+                    ProcessStartInfo commandInfosub = new ProcessStartInfo();
+                    commandInfosub.WorkingDirectory = FguiLocation;
+                    commandInfosub.UseShellExecute = false;
+                    commandInfosub.RedirectStandardInput = true;
+                    commandInfosub.RedirectStandardOutput = true;
+                    commandInfosub.FileName = exeLocation;
+                    commandInfosub.Arguments = execString;
+                    Process processsub = Process.Start(commandInfosub);
+                    Console.WriteLine(exeLocation + execString);
+                    processsub.WaitForExit();
+                    Thread.Sleep(100);
+                    Console.WriteLine(lastfolderName + " exported ");
                 }
             }
 
@@ -744,6 +765,14 @@ namespace fgui_toolkit
             commandInfo.FileName = "git.exe";
             commandInfo.Arguments = "reset --hard";
             Process process = Process.Start(commandInfo);
+
+            this.Invoke(new InvokeExpThDone(this.exportThreadDone), new object[] { expparm.ExportPath_Branch });
+        }
+        private delegate void InvokeExpThDone(string branchLoc);
+        private void exportThreadDone(string branchLoc)
+        {
+            MessageBox.Show("輸出完成!");
+            
         }
     }
 }
