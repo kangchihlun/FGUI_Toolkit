@@ -122,6 +122,7 @@
             this.btnExport.TabIndex = 11;
             this.btnExport.Text = "批次導出";
             this.btnExport.UseVisualStyleBackColor = true;
+            this.btnExport.Click += new System.EventHandler(this.btnExport_Click);
             // 
             // btnAddExpPath
             // 
