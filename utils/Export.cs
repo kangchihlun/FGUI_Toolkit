@@ -12,4 +12,10 @@ namespace fgui_toolkit
         public string ExportPath;
         public string ExportPath_Branch;
     }
+
+    public class ExportThreadParm
+    {
+        public string selstr;
+        public string ExportPath_Branch;
+    }
 }

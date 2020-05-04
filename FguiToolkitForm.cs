@@ -636,6 +636,11 @@ namespace fgui_toolkit
                 MessageBox.Show("請先關閉 FairyGui Editor 以繼續");
                 return;
             }
+
+            foreach (var proc in Process.GetProcessesByName("FairyGUI-Editor"))
+            {
+                proc.Kill();
+            }
             if (exeLocation.Length < 1)
             {
                 MessageBox.Show("請先執行場景資源掃描以繼續");
@@ -650,15 +655,40 @@ namespace fgui_toolkit
 
             modifyExportPath(expinfo);
 
+            // Start Export Thread
             ParameterizedThreadStart starterp = new ParameterizedThreadStart(startexportThread);
             Thread a = new Thread(starterp);
             ExportThreadParm parm = new ExportThreadParm();
             parm.selstr = selstr;
             parm.ExportPath_Branch = expinfo.ExportPath_Branch;
             a.Start(parm);
-            System.Diagnostics.Process.Start("explorer.exe", parm.ExportPath_Branch.Replace('\\', '/'));
+
+
+            // open the export target folder
+            string tgtdir = retrieveDir(FguiLocation, expinfo.ExportPath_Branch.Replace('\\', '/'));
+            if (Directory.Exists(tgtdir))
+            {
+                ProcessStartInfo startInfo = new ProcessStartInfo
+                {
+                    Arguments = tgtdir,
+                    FileName = "explorer.exe"
+                };
+                Process.Start(startInfo);
+            }
         }
         
+        private string retrieveDir(string root , string inpath)
+        {
+            DirectoryInfo di = new DirectoryInfo(root);
+            string s_path = inpath;
+            while (s_path.Substring(0,3)=="../")
+            {
+                s_path = s_path.Substring(3);
+                di = Directory.GetParent(di.FullName);
+            }
+            return (di.FullName + '/' + s_path).Replace('/','\\');
+        }
+
         private void startexportThread(object parm)
         {
             ExportThreadParm expparm = (ExportThreadParm)parm;
@@ -745,16 +775,14 @@ namespace fgui_toolkit
                     Console.WriteLine(exeLocation + execString);
                     processsub.WaitForExit();
                     Thread.Sleep(100);
+
                     Console.WriteLine(lastfolderName + " exported ");
                 }
             }
-
-
             foreach (var proc in Process.GetProcessesByName("FairyGUI-Editor"))
             {
                 proc.Kill();
             }
-
 
             /// revert all change
             ProcessStartInfo commandInfo = new ProcessStartInfo();
