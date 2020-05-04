@@ -8,4 +8,6 @@ FairyGUI Toolkit , some utilities to speed up the fgui pipeline
 增加了批次導出設定，仍然有對 package.xml 做修改，但為了怕出現一堆異動，所以後面又調用了 git 指令全部還原回去，
 如果本地沒裝 git 注意輸出路徑會被異動
 
-Todo: 錄教學影片
+使用步驟詳解
+
+https://youtu.be/pKMdDVabavg
