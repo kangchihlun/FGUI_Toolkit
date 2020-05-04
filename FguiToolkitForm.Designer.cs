@@ -40,6 +40,7 @@
             this.btnAddExpPath = new System.Windows.Forms.Button();
             this.btnDelExpSet = new System.Windows.Forms.Button();
             this.btnModifyExp = new System.Windows.Forms.Button();
+            this.lbb_exportText = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.datagridView1)).BeginInit();
             this.SuspendLayout();
             // 
@@ -153,11 +154,21 @@
             this.btnModifyExp.UseVisualStyleBackColor = true;
             this.btnModifyExp.Click += new System.EventHandler(this.btnModifyExp_Click);
             // 
+            // lbb_exportText
+            // 
+            this.lbb_exportText.AutoSize = true;
+            this.lbb_exportText.Location = new System.Drawing.Point(12, 590);
+            this.lbb_exportText.Name = "lbb_exportText";
+            this.lbb_exportText.Size = new System.Drawing.Size(8, 12);
+            this.lbb_exportText.TabIndex = 30;
+            this.lbb_exportText.Text = ".";
+            // 
             // FguiToolkitForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(525, 594);
+            this.ClientSize = new System.Drawing.Size(525, 611);
+            this.Controls.Add(this.lbb_exportText);
             this.Controls.Add(this.btnModifyExp);
             this.Controls.Add(this.btnDelExpSet);
             this.Controls.Add(this.btnAddExpPath);
@@ -168,8 +179,8 @@
             this.Controls.Add(this.label1);
             this.Controls.Add(this.combo_exp);
             this.Controls.Add(this.btnPurgeProject);
-            this.MaximumSize = new System.Drawing.Size(541, 633);
-            this.MinimumSize = new System.Drawing.Size(541, 633);
+            this.MaximumSize = new System.Drawing.Size(541, 650);
+            this.MinimumSize = new System.Drawing.Size(541, 650);
             this.Name = "FguiToolkitForm";
             this.Text = "FGui_Toolkit    Made by Kang";
             ((System.ComponentModel.ISupportInitialize)(this.datagridView1)).EndInit();
@@ -192,6 +203,7 @@
         private System.Windows.Forms.Button btnAddExpPath;
         private System.Windows.Forms.Button btnDelExpSet;
         private System.Windows.Forms.Button btnModifyExp;
+        private System.Windows.Forms.Label lbb_exportText;
     }
 }
 

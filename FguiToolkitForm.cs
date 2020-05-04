@@ -141,7 +141,7 @@ namespace fgui_toolkit
             datagridView1.Rows.Clear();
             datagridView1.Refresh();
             resourceIDDict.Clear();
-
+            if (FguiLocation.Length<1) return;
             List<string> dirs = Directory.GetDirectories(FguiLocation, "*", SearchOption.TopDirectoryOnly).ToList();
             foreach (string dir in dirs)
             {
@@ -735,7 +735,7 @@ namespace fgui_toolkit
                         if (fileEntries.Count < 1) continue;
                         execString += fileEntries[0].Replace('\\', '/');
                         execString += " -t " + gName;
-
+                        this.Invoke(new InvokeExpStatus(this.exportThreadMsg), new object[] { lastfolderName + " 導出中..." });
 
                         ProcessStartInfo commandInfosub = new ProcessStartInfo();
                         commandInfosub.WorkingDirectory = FguiLocation;
@@ -749,6 +749,7 @@ namespace fgui_toolkit
                         processsub.WaitForExit();
                         Thread.Sleep(100);
                         Console.WriteLine(lastfolderName + " exported ");
+
                     }
                 }
             }
@@ -777,6 +778,7 @@ namespace fgui_toolkit
                     Thread.Sleep(100);
 
                     Console.WriteLine(lastfolderName + " exported ");
+                    this.Invoke(new InvokeExpStatus(this.exportThreadMsg), new object[] { lastfolderName + " 導出完成 " });
                 }
             }
             foreach (var proc in Process.GetProcessesByName("FairyGUI-Editor"))
@@ -799,8 +801,14 @@ namespace fgui_toolkit
         private delegate void InvokeExpThDone(string branchLoc);
         private void exportThreadDone(string branchLoc)
         {
-            MessageBox.Show("輸出完成!");
-            
+            MessageBox.Show("導出完成!", "FGUI Toolkit", MessageBoxButtons.OK, MessageBoxIcon.None,
+            MessageBoxDefaultButton.Button1, (MessageBoxOptions)0x40000);
+        }
+
+        private delegate void InvokeExpStatus(string msg);
+        private void exportThreadMsg(string msg)
+        {
+            this.lbb_exportText.Text = msg;
         }
     }
 }
