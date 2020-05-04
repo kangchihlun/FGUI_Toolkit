@@ -655,15 +655,6 @@ namespace fgui_toolkit
 
             modifyExportPath(expinfo);
 
-            // Start Export Thread
-            ParameterizedThreadStart starterp = new ParameterizedThreadStart(startexportThread);
-            Thread a = new Thread(starterp);
-            ExportThreadParm parm = new ExportThreadParm();
-            parm.selstr = selstr;
-            parm.ExportPath_Branch = expinfo.ExportPath_Branch;
-            a.Start(parm);
-
-
             // open the export target folder
             string tgtdir = retrieveDir(FguiLocation, expinfo.ExportPath_Branch.Replace('\\', '/'));
             if (Directory.Exists(tgtdir))
@@ -675,6 +666,15 @@ namespace fgui_toolkit
                 };
                 Process.Start(startInfo);
             }
+
+            // Start Export Thread
+            ParameterizedThreadStart starterp = new ParameterizedThreadStart(startexportThread);
+            Thread a = new Thread(starterp);
+            ExportThreadParm parm = new ExportThreadParm();
+            parm.selstr = selstr;
+            parm.ExportPath_Branch = expinfo.ExportPath_Branch;
+            a.Start(parm);
+
         }
         
         private string retrieveDir(string root , string inpath)
